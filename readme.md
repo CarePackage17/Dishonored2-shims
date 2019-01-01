@@ -27,7 +27,7 @@ tl;dr:
 
 ## What doesn't work
 
-There's no UI, you just get dropped into the menu map but nothing else shows up. Maybe the game doesn't like my fake values from the iggyperfmon shim and then kills the UI, but I haven't really looked into that yet.
+There's no UI, you just get dropped into the menu map but nothing else shows up. This is caused by returning 0 from `IggyPerfmonCreate()`. If we figure out how to make that call properly, the UI will work regularly.
 
 The console works though :)
 
@@ -41,3 +41,7 @@ Debug HUD:
 
 Console:
 ![](./screenshots/console.jpg)
+
+# Havok
+
+Havok licenses expire after 31.12.2018. If the system date is set after, the game will crash at startup.
