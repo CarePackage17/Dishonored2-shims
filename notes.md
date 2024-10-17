@@ -85,3 +85,47 @@ Also, one of these might be the address of a malloc'd block?
 For sure the call that crashes on our side (with random shit addresses) is supposed to go into iggyperfmon, so that confirms the function pointer hypothesis. Also, the addr in that run is 00007FF9A47681F0, which is in the 3rd row of that hex dump above. well. in ghidra it's FunThatCrashesWithShimIggyPerfmon.
 
 Cool, some sort of progress at least. I wish there was at least a fucking public header or something to make this less of a guesswork. oh well.
+
+# Frida
+
+## Faking date/time for havok
+
+This eliminates the need to set the system clock before starting (annoying af because it breaks any internet access).
+`frida-trace -a "Dishonored2_x64_steamless.exe!0x288aff0" .\Dishonored2_x64_steamless.exe +com_showLoadingScreen 0 +win_viewLog 1`
+
+sub_288aff0.js:
+```js
+{
+  /**
+   * Called synchronously when about to call sub_288aff0.
+   *
+   * @this {object} - Object allowing you to store state for use in onLeave.
+   * @param {function} log - Call this function with a string to be presented to the user.
+   * @param {array} args - Function arguments represented as an array of NativePointer objects.
+   * For example use args[0].readUtf8String() if the first argument is a pointer to a C string encoded as UTF-8.
+   * It is also possible to modify arguments by assigning a NativePointer object to an element of this array.
+   * @param {object} state - Object allowing you to keep state across function calls.
+   * Only one JavaScript function will execute at a time, so do not worry about race-conditions.
+   * However, do not use this to store function arguments across onEnter/onLeave, but instead
+   * use "this" which is an object for keeping state local to an invocation.
+   */
+  onEnter(log, args, state) {
+    log("havok's BS checks");
+  },
+
+  /**
+   * Called synchronously when about to return from sub_288aff0.
+   *
+   * See onEnter for details.
+   *
+   * @this {object} - Object allowing you to access state stored in onEnter.
+   * @param {function} log - Call this function with a string to be presented to the user.
+   * @param {NativePointer} retval - Return value represented as a NativePointer object.
+   * @param {object} state - Object allowing you to keep state across function calls.
+   */
+  onLeave(log, retval, state) {
+	  //Let's pretend it's 17.10.2018
+	  retval.replace(1539792002);
+  }
+}
+```
